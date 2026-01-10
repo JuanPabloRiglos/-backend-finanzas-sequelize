@@ -4,14 +4,14 @@ export interface VentaAttributesType {
   categoria: string;
   monto: number;
   descripcion: string | null;
-  created_at: Date;
-  updated_at: Date;
-  deleted_at: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt: Date | null;
 }
 
 export type CreateVentaInputType = Omit<
   VentaAttributesType,
-  'id' | 'created_at' | 'updated_at' | 'deleted_at'
+  'id' | 'createdAt' | 'updatedAt' | 'deletedAt'
 >;
 
 export type UpdateVentaInputType = Partial<VentaAttributesType>; //todos sus campos son opcionales con el partial

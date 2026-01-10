@@ -1,35 +1,42 @@
 import { sequelize } from '../config/database';
-import { DataTypes, Model } from 'sequelize';
 
-//importaciones de Types
+//El tipado para el modelo se maneja con Squelize y su libreria
+//Evitando coliciones con typescrip en campos automaticos
+
 import {
-  CreateVentaInputType,
-  VentaAttributesType,
-} from '../types/venta.types';
+  DataTypes,
+  Model,
+  InferAttributes,
+  InferCreationAttributes,
+  CreationOptional,
+} from 'sequelize';
 
 //Declaracion la Clase Ventas como Modelo --------------------
 
-export class Venta
-  extends Model<VentaAttributesType, CreateVentaInputType>
-  implements VentaAttributesType
-{
+export class Venta extends Model<
+  InferAttributes<Venta, { omit: 'createdAt' | 'updatedAt' | 'deletedAt' }>,
+  InferCreationAttributes<
+    Venta,
+    { omit: 'createdAt' | 'updatedAt' | 'deletedAt' }
+  >
+> {
   //campos de logica del negocio
-  public id!: number;
+  declare id: CreationOptional<number>;
   //campos validados por zod dto
-  public fecha!: Date;
-  public categoria!: string;
-  public monto!: number;
-  public descripcion!: string | null;
+  declare fecha: Date;
+  declare categoria: string;
+  declare monto: number;
+  declare descripcion: string | null;
   // Timestamps (readonly porque solo los maneja Sequelize)
-  public readonly created_at!: Date;
-  public readonly updated_at!: Date;
-  public readonly deleted_at!: Date | null;
+  declare createdAt: CreationOptional<Date>;
+  declare updatedAt: CreationOptional<Date>;
+  declare deletedAt: Date | null;
 }
 
 Venta.init(
   {
     id: {
-      type: DataTypes.NUMBER,
+      type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
     },
@@ -49,29 +56,18 @@ Venta.init(
       type: DataTypes.TEXT,
       allowNull: true,
     },
-    created_at: {
-      type: DataTypes.DATE,
-      allowNull: false,
-    },
-    updated_at: {
-      type: DataTypes.DATE,
-      allowNull: false,
-    },
-    deleted_at: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
   },
   {
     //segundo parametro -> opciones
     sequelize,
     tableName: 'ventas',
-    timestamps: true,
-    underscored: true, // Usa snake_case para nombres de columnas
-    paranoid: true, // Solo si tenemos columna deleted_at
+    timestamps: true, //meneja de forma automatica los cmapos de createdAt, y updatedAt
+    underscored: true, // convierte a snake_case para nombres de columnas
+    paranoid: true, // Solo si tenemos columna deleted_at, maneja el soft delete de forma autoamica
   }
 );
 
+// init()
 //   - Es un método estático de la clase Model
 //   - Registra el modelo en la instancia de Sequelize
 //   - Define las columnas, tipos, opciones

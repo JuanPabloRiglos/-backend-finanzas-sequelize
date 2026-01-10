@@ -35,9 +35,22 @@ export async function create(req: Request, res: Response, next: NextFunction) {
 }
 
 //--------------------------GET ALL--------------------------------------------------------------
-export async function getAll(_req: Request, res: Response, next: NextFunction) {
+export async function getAll(req: Request, res: Response, next: NextFunction) {
   try {
-    const data = await Service.getAllRegisters();
+    const { periodo, fecha_desde, fecha_hasta } = req.query;
+
+    let filters = undefined;
+
+    if (periodo || fecha_desde || fecha_hasta) {
+      filters = {
+        periodo: periodo as string | undefined,
+        fecha_desde: fecha_desde as string | undefined,
+        fecha_hasta: fecha_hasta as string | undefined,
+      };
+    }
+
+    const data = await Service.getAllRegisters(filters);
+
     return respondOk(res, data, 'peticion realizada con exito');
   } catch (error) {
     next(error);

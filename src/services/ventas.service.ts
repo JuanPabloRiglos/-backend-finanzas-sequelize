@@ -1,39 +1,77 @@
+//librerias de terceros
+import createHttpError from 'http-errors';
+import {
+  startOfDay,
+  endOfDay,
+  startOfWeek,
+  endOfWeek,
+  startOfMonth,
+  endOfMonth,
+  startOfYear,
+  endOfYear,
+} from 'date-fns';
+
+import { Op } from 'sequelize';
+
+//importaciones propias
 import { Venta } from '../models/venta.model';
 
 import {
   CreateVentaInputType,
   UpdateVentaInputType,
 } from '../types/venta.types';
-import createHttpError from 'http-errors';
 
 //Funciones que conectan el controller con el modelo -> Db
 
 // ===============================GET ALL==============================
-export async function getAllRegisters(filters?: {
-  period?: string;
-  fecha_desde?: string;
-  fecha_hasta?: string;
-  fecha_especifica?: string;
-}) {
-  const whereCluase: any = {}; //no me gusta el nmbre, que significa??
+export async function getAllRegisters(
+  filters?:
+    | {
+        periodo?: string;
+        fecha_desde?: string;
+        fecha_hasta?: string;
+      }
+    | undefined
+) {
+  let whereClause: any = {};
 
-  if (filters?.fecha_especifica) {
-    whereCluase.fecha = fecha_especifica;
-  } else if (filters?.period === 'mes') {
-    whereCluase.fecha = {
-      [Op.gte]: startOfMonth(new Date()),
-      [Op.lte]: endOfMonth(new Date()), // no entiendo nada de estos Op??
+  if (filters?.fecha_desde && filters.fecha_hasta) {
+    whereClause.fecha = {
+      [Op.between]: [filters.fecha_desde, filters.fecha_hasta],
     };
+  } else if (filters?.periodo) {
+    let today = new Date();
+    switch (filters.periodo) {
+      case 'hoy':
+        whereClause.fecha = {
+          [Op.gte]: startOfDay(today),
+          [Op.lte]: endOfDay(today),
+        };
+        break;
+      case 'semana':
+        whereClause.fecha = {
+          [Op.gte]: startOfWeek(today),
+          [Op.lte]: endOfWeek(today),
+        };
+        break;
+      case 'mes':
+        whereClause.fecha = {
+          [Op.gte]: startOfMonth(today),
+          [Op.lte]: endOfMonth(today),
+        };
+        break;
+      case 'anual':
+        whereClause.fecha = {
+          [Op.gte]: startOfYear(today),
+          [Op.lte]: endOfYear(today),
+        };
+        break;
+    }
   }
-
-  if (filters?.fecha_desde && filters?.fecha_hasta) {
-    whereCluase.fecha = {
-      [Op.between]: [filters.fecha_desde, filters.fecha_hasta], //esto sobreescribe el objeto qu ehicimos mas arriba con un parametro en el medio? no entiendo que queda guardado
-    };
-  }
-  //que pasa si tenemos fechas especificas?
-
-  return await Venta.findAll({ where: whereCluase });
+  // La clausula where, sera undefined, o tendra el valor como por ejemplo:
+  //  [Op.between]: ['2025-01-01', '2025-01-31'],
+  // que se traduce a sql como algo asi : WHERE fecha BETWEEN '2025-01-01' AND '2025-01-31'
+  return await Venta.findAll({ where: whereClause });
 }
 
 // ===============================CREATE==============================

@@ -11,12 +11,11 @@ import {
   CreationOptional,
 } from 'sequelize';
 
-//Declaracion la Clase Ventas como Modelo --------------------
-
-export class Venta extends Model<
-  InferAttributes<Venta, { omit: 'createdAt' | 'updatedAt' | 'deletedAt' }>,
+//Declaracion la Clase Gastos como Modelo --------------------
+export class Gasto extends Model<
+  InferAttributes<Gasto, { omit: 'createdAt' | 'updatedAt' | 'deletedAt' }>,
   InferCreationAttributes<
-    Venta,
+    Gasto,
     { omit: 'createdAt' | 'updatedAt' | 'deletedAt' }
   >
 > {
@@ -33,7 +32,7 @@ export class Venta extends Model<
   declare deletedAt: Date | null;
 }
 
-Venta.init(
+Gasto.init(
   {
     id: {
       type: DataTypes.INTEGER,
@@ -60,7 +59,7 @@ Venta.init(
   {
     //segundo parametro -> opciones
     sequelize,
-    tableName: 'ventas',
+    tableName: 'gastos',
     timestamps: true, //meneja de forma automatica los cmapos de createdAt, y updatedAt
     underscored: true, // convierte a snake_case para nombres de columnas
     paranoid: true, // Solo si tenemos columna deleted_at, maneja el soft delete de forma autoamica

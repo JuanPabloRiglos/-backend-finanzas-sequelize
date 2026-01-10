@@ -8,28 +8,27 @@ import {
 } from '../utils/apiResponseHelpers';
 
 //funciones del Servicio
-import * as Service from '../services/ventas.service';
+import * as Service from '../services/gastos.service';
 
 //Typado. Necesitamos trbajar el tipo de dato entre capas
 import {
-  CreateVentaInputType,
-  UpdateVentaInputType,
-} from '../types/venta.types';
-import { CreateVentaDto, UpdateVentaDto } from '../dtos/venta.dto';
-
+  CreateGastoInputType,
+  UpdateGastoInputType,
+} from '../types/gasto.types';
+import { CreateGastoDto, UpdateGastoDto } from '../dtos/gasto.dto';
 //funciones de transformacion de tipo.
 import {
-  ventaDtoToCreateInput,
-  ventaDtoToUpdateInput,
+  gastoDtoToCreateInput,
+  gastoDtoToUpdateInput,
 } from '../utils/dtoMappers';
 
 //--------------------------CREATE--------------------------------------------------------------
 export async function create(req: Request, res: Response, next: NextFunction) {
   try {
-    const body: CreateVentaDto = req.body;
-    const typedDto: CreateVentaInputType = ventaDtoToCreateInput(body);
+    const body: CreateGastoDto = req.body;
+    const typedDto: CreateGastoInputType = gastoDtoToCreateInput(body);
     const data = await Service.createRegister(typedDto);
-    return respondCreated(res, data, 'Venta creada con exito');
+    return respondCreated(res, data, 'Gasto creado con exito');
   } catch (error) {
     next(error);
   }
@@ -77,10 +76,10 @@ export async function updateById(
 ) {
   try {
     const id: number = Number(req.params.id);
-    const body: UpdateVentaDto = req.body;
-    const typedDto: UpdateVentaInputType = ventaDtoToUpdateInput(body);
+    const body: UpdateGastoDto = req.body;
+    const typedDto: UpdateGastoInputType = gastoDtoToUpdateInput(body);
     const data = await Service.updateRegister(id, typedDto);
-    return respondOk(res, data, 'Venta actualizada');
+    return respondOk(res, data, 'Gasto actualizado');
   } catch (error) {
     next(error);
   }

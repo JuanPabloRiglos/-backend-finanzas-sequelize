@@ -78,6 +78,11 @@ export async function getAllRegisters(
 export async function createRegister(typedDto: CreateVentaInputType) {
   return await Venta.create(typedDto);
 }
+// ===============================CREATE MASIVE==============================
+export async function bulkCreateRegister(ventas: CreateVentaInputType[]) {
+  if (ventas.length === 0) return [];
+  return await Venta.bulkCreate(ventas);
+}
 
 // ===============================GET BY ID==============================
 export async function getRegisterById(id: number) {

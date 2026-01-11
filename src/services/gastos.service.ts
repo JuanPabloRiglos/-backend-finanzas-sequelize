@@ -79,6 +79,12 @@ export async function createRegister(typedDto: CreateGastoInputType) {
   return await Gasto.create(typedDto);
 }
 
+// ===============================CREATE MASIVE==============================
+export async function bulkCreateRegister(gastos: CreateGastoInputType[]) {
+  if (gastos.length === 0) return [];
+  return await Gasto.bulkCreate(gastos);
+}
+
 // ===============================GET BY ID==============================
 export async function getRegisterById(id: number) {
   const gasto = await Gasto.findByPk(id);

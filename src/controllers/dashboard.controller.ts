@@ -14,6 +14,6 @@ export async function getLineChartData(
 
     return respondOk(res, data, 'peticion realizada con exito');
   } catch (error) {
-    next(error);
+    return next(error);
   }
 }

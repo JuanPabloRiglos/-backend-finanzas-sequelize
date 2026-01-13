@@ -22,16 +22,21 @@ import {
   ventaDtoToCreateInput,
   ventaDtoToUpdateInput,
 } from '../utils/dtoMappers';
+import { AuthenticatedRequest } from '../types/custom-request';
 
 //--------------------------CREATE--------------------------------------------------------------
 export async function create(req: Request, res: Response, next: NextFunction) {
   try {
+    const { user } = req as AuthenticatedRequest;
     const body: CreateVentaDto = req.body;
     const typedDto: CreateVentaInputType = ventaDtoToCreateInput(body);
-    const data = await Service.createRegister(typedDto);
+    const data = await Service.createRegister({
+      ...typedDto,
+      usuarioId: user.id,
+    });
     return respondCreated(res, data, 'Venta creada con exito');
   } catch (error) {
-    next(error);
+    return next(error);
   }
 }
 
@@ -54,7 +59,7 @@ export async function getAll(req: Request, res: Response, next: NextFunction) {
 
     return respondOk(res, data, 'peticion realizada con exito');
   } catch (error) {
-    next(error);
+    return next(error);
   }
 }
 
@@ -65,7 +70,7 @@ export async function getById(req: Request, res: Response, next: NextFunction) {
     const data = await Service.getRegisterById(id);
     return respondOk(res, data, 'peticion realizada con exito');
   } catch (error) {
-    next(error);
+    return next(error);
   }
 }
 
@@ -82,7 +87,7 @@ export async function updateById(
     const data = await Service.updateRegister(id, typedDto);
     return respondOk(res, data, 'Venta actualizada');
   } catch (error) {
-    next(error);
+    return next(error);
   }
 }
 
@@ -97,6 +102,6 @@ export async function deleteForId(
     await Service.deleteRegister(id);
     return respondNoContent(res);
   } catch (error) {
-    next(error);
+    return next(error);
   }
 }

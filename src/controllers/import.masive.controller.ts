@@ -12,6 +12,7 @@ import {
 import { CreateVentaInputType } from '../types/venta.types';
 import { CreateGastoInputType } from '../types/gasto.types';
 import { ImportJsonDto } from '../dtos/import.masive.dto';
+import { AuthenticatedRequest } from '../types/custom-request';
 
 export async function createMasive(
   req: Request,
@@ -19,12 +20,19 @@ export async function createMasive(
   next: NextFunction
 ) {
   try {
+    const { user } = req as AuthenticatedRequest;
     const body: ImportJsonDto = req.body;
 
-    const ventasInput: CreateVentaInputType[] =
-      body.ventas?.map(ventaDtoToCreateInput) || [];
-    const gastosInput: CreateGastoInputType[] =
-      body.gastos?.map(gastoDtoToCreateInput) || [];
+    const ventasInput: (CreateVentaInputType & { usuarioId: number })[] =
+      body.ventas?.map(venta => {
+        const typedDto = ventaDtoToCreateInput(venta);
+        return { ...typedDto, usuarioId: user.id };
+      }) || [];
+    const gastosInput: (CreateGastoInputType & { usuarioId: number })[] =
+      body.gastos?.map(gasto => {
+        const typedDto = gastoDtoToCreateInput(gasto);
+        return { ...typedDto, usuarioId: user.id };
+      }) || [];
 
     //ejecutamos los dos bulk en paralelo
     const [ventasCreadas, gastosCreados] = await Promise.all([
@@ -42,6 +50,6 @@ export async function createMasive(
       'Importación masiva exitosa'
     );
   } catch (error) {
-    next(error);
+    return next(error);
   }
 }

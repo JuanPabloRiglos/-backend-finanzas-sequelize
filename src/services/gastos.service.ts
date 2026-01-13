@@ -75,12 +75,16 @@ export async function getAllRegisters(
 }
 
 // ===============================CREATE==============================
-export async function createRegister(typedDto: CreateGastoInputType) {
+export async function createRegister(
+  typedDto: CreateGastoInputType & { usuarioId: number }
+) {
   return await Gasto.create(typedDto);
 }
 
 // ===============================CREATE MASIVE==============================
-export async function bulkCreateRegister(gastos: CreateGastoInputType[]) {
+export async function bulkCreateRegister(
+  gastos: (CreateGastoInputType & { usuarioId: number })[]
+) {
   if (gastos.length === 0) return [];
   return await Gasto.bulkCreate(gastos);
 }

@@ -1,0 +1,930 @@
+{
+	"info": {
+		"_postman_id": "41945d62-7709-48d9-b99e-a994f08201d2",
+		"name": "Backend Finanzas - Sequelize",
+		"description": "Microservicio de Finanzas - CRUD de Ventas y Gastos\n\nStack:\n\n- Node.js + Express + TypeScript\n    \n- PostgreSQL + Sequelize ORM\n    \n- Validación con Zod\n    \n    Endpoints incluidos:\n    \n- CRUD completo de Ventas (con soft delete)\n    \n- CRUD completo de Gastos (con soft delete)\n    \n- Dashboard con datos agregados\n    \n- Import masivo desde JSON",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "21644680"
+	},
+	"item": [
+		{
+			"name": "Ventas",
+			"item": [
+				{
+					"name": "Crear venta",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "Le dice al servidor que el body es JSON. \nExpress necesita esto para parsear req.body\n",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "  {\r\n    \"fecha\": \"2026-01-10\",\r\n    \"categoria\": \"Productos\",\r\n    \"monto\": 1500.50,\r\n    \"descripcion\": \"Venta 4 de PRUEBA productos electrónicos\"\r\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/ventas",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"ventas"
+							]
+						},
+						"description": "● ### POST /api/ventas\n\n  **Crear venta**\n\n  Registra una nueva venta en el sistema. El `usuarioId` se asigna automáticamente\n  desde el token JWT del usuario autenticado.\n\n  #### Headers Requeridos\n\n  Authorization: Bearer\n\n  ⚠️ **Importante:** El token debe obtenerse previamente mediante login en el\n  microservicio de autenticación.\n\n  #### Request Body\n\n  ```json\n  {\n    \"fecha\": \"2026-01-09\",\n    \"categoria\": \"Productos\",\n    \"monto\": 1500.50,\n    \"descripcion\": \"Venta de productos electrónicos\"\n  }\n\n  Validaciones\n\n  - fecha: formato YYYY-MM-DD, requerido\n  - categoria: string entre 2-100 caracteres, requerido\n  - monto: número positivo, requerido\n  - descripcion: string, opcional (puede ser null)\n\n  Respuesta Exitosa (201 Created)\n\n  {\n    \"success\": true,\n    \"message\": \"Venta creada con exito\",\n    \"data\": {\n      \"id\": 8,\n      \"fecha\": \"2026-01-09\",\n      \"categoria\": \"Productos\",\n      \"monto\": \"1500.50\",\n      \"descripcion\": \"Venta de productos electrónicos\",\n      \"usuarioId\": 1,\n      \"createdAt\": \"2026-01-13T14:41:35.705Z\",\n      \"updatedAt\": \"2026-01-13T14:41:35.705Z\",\n      \"deletedAt\": null\n    }\n  }\n\n  Errores Posibles\n\n  400 Bad Request - Validación fallida\n\n  {\n    \"success\": false,\n    \"status\": 400,\n    \"error\": \"BadRequestError\",\n    \"message\": \"Errores de validacion\",\n    \"details\": {\n      \"fecha\": \"Fecha debe ser formato YYYY-MM-DD\"\n    }\n  }\n\n  401 Unauthorized - Token no proporcionado\n\n  {\n    \"success\": false,\n    \"status\": 401,\n    \"error\": \"UnauthorizedError\",\n    \"message\": \"Token no proporcionado\"\n  }\n\n  401 Unauthorized - Token inválido o expirado\n\n  {\n    \"success\": false,\n    \"status\": 401,\n    \"error\": \"UnauthorizedError\",\n    \"message\": \"Token inválido\"\n  }"
+					},
+					"response": []
+				},
+				{
+					"name": "Traer todas las ventas",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "Le dice al servidor que el body es JSON. \nExpress necesita esto para parsear req.body\n",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/ventas",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"ventas"
+							]
+						},
+						"description": "● ### GET /api/ventas\n\n**Listar ventas**\n\nLista todas las ventas del sistema (excluye registros con soft delete). Soporta  \nfiltros por periodo o rango de fechas.\n\n#### Headers Requeridos\n\nAuthorization: Bearer\n\n#### Query Parameters (Opcionales)\n\n**Filtros por periodo relativo:**\n\n- `?periodo=hoy` → Ventas de hoy\n    \n- `?periodo=semana` → Ventas de esta semana (domingo-sábado)\n    \n- `?periodo=mes` → Ventas de este mes\n    \n- `?periodo=anual` → Ventas de este año\n    \n\n**Filtro por rango personalizado:**\n\n- `?fecha_desde=YYYY-MM-DD&fecha_hasta=YYYY-MM-DD` → Rango específico\n    \n\n**Sin filtros:** Retorna todas las ventas\n\n⚠️ **Nota:** Los filtros `periodo` y `fecha_desde/fecha_hasta` son excluyentes. Si se  \nenvían ambos, se prioriza el rango personalizado.\n\n#### Respuesta Exitosa (200 OK)\n\n\\`\\`\\`json  \n{  \n\"success\": true,  \n\"message\": \"peticion realizada con exito\",  \n\"data\": \\[  \n{  \n\"id\": 1,  \n\"fecha\": \"2025-01-09\",  \n\"categoria\": \"Productos\",  \n\"monto\": \"1500.50\",  \n\"descripcion\": \"Venta de productos electrónicos\",  \n\"usuarioId\": 1,  \n\"createdAt\": \"2026-01-10T11:58:41.156Z\",  \n\"updatedAt\": \"2026-01-10T11:58:41.156Z\",  \n\"deletedAt\": null  \n},  \n{  \n\"id\": 2,  \n\"fecha\": \"2025-01-09\",  \n\"categoria\": \"Productos\",  \n\"monto\": \"1500.50\",  \n\"descripcion\": \"Venta 2 de productos electrónicos\",  \n\"usuarioId\": 1,  \n\"createdAt\": \"2026-01-10T12:31:51.984Z\",  \n\"updatedAt\": \"2026-01-10T12:31:51.984Z\",  \n\"deletedAt\": null  \n}  \n\\]  \n}\n\n✅ Los registros con deletedAt no null son excluidos automáticamente (soft delete)\n\nEjemplos de Uso\n\n# Todas las ventas\n\nGET /api/ventas\n\n# Ventas de hoy\n\nGET /api/ventas?periodo=hoy\n\n# Ventas del mes actual\n\nGET /api/ventas?periodo=mes\n\n# Ventas en rango específico\n\nGET /api/ventas?fecha_desde=2026-01-01&fecha_hasta=2026-01-31\n\nErrores Posibles\n\n401 Unauthorized - Token no proporcionado\n\n{  \n\"success\": false,  \n\"status\": 401,  \n\"error\": \"UnauthorizedError\",  \n\"message\": \"Token no proporcionado\"  \n}\n\n401 Unauthorized - Token inválido o expirado\n\n{  \n\"success\": false,  \n\"status\": 401,  \n\"error\": \"UnauthorizedError\",  \n\"message\": \"Token inválido\"  \n}"
+					},
+					"response": []
+				},
+				{
+					"name": "Traer ventas por RANGO de Fecha",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "Le dice al servidor que el body es JSON. \nExpress necesita esto para parsear req.body\n",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/ventas?fecha_desde=2024-12-17&fecha_hasta=2025-01-31",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"ventas"
+							],
+							"query": [
+								{
+									"key": "fecha_desde",
+									"value": "2024-12-17"
+								},
+								{
+									"key": "fecha_hasta",
+									"value": "2025-01-31"
+								}
+							]
+						},
+						"description": "Documentado en Traer Todas las Ventas."
+					},
+					"response": []
+				},
+				{
+					"name": "Traer ventas de HOY.",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "Le dice al servidor que el body es JSON. \nExpress necesita esto para parsear req.body\n",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/ventas?periodo=hoy",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"ventas"
+							],
+							"query": [
+								{
+									"key": "periodo",
+									"value": "hoy"
+								}
+							]
+						},
+						"description": "Documentado en Traer todas las Ventas"
+					},
+					"response": []
+				},
+				{
+					"name": "Traer ventas de ESTA SEMANA",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "Le dice al servidor que el body es JSON. \nExpress necesita esto para parsear req.body\n",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/ventas?periodo=semana",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"ventas"
+							],
+							"query": [
+								{
+									"key": "periodo",
+									"value": "semana"
+								}
+							]
+						},
+						"description": "Documentado en Traer Todas"
+					},
+					"response": []
+				},
+				{
+					"name": "Traer ventas de ESTE MES",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "Le dice al servidor que el body es JSON. \nExpress necesita esto para parsear req.body\n",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/ventas?periodo=mes",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"ventas"
+							],
+							"query": [
+								{
+									"key": "periodo",
+									"value": "mes"
+								}
+							]
+						},
+						"description": "Documentado en traer todas las ventas"
+					},
+					"response": []
+				},
+				{
+					"name": "Traer ventas ANUAL",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "Le dice al servidor que el body es JSON. \nExpress necesita esto para parsear req.body\n",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/ventas?periodo=anual&",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"ventas"
+							],
+							"query": [
+								{
+									"key": "periodo",
+									"value": "anual"
+								},
+								{
+									"key": "",
+									"value": null
+								}
+							]
+						},
+						"description": "Documentado en Traer todas las Ventas"
+					},
+					"response": []
+				},
+				{
+					"name": "Traer Venta por id",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "Le dice al servidor que el body es JSON. \nExpress necesita esto para parsear req.body\n",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/ventas/1",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"ventas",
+								"1"
+							]
+						},
+						"description": "● ### GET /api/ventas/:id\n\n  **Obtener venta por ID**\n\n  Obtiene una venta específica por su ID.\n\n  #### Headers Requeridos\n\n  Authorization: Bearer\n\n  #### Path Parameters\n\n  - **id**: número entero (ID de la venta)\n\n  #### Respuesta Exitosa (200 OK)\n\n  ```json\n  {\n    \"success\": true,\n    \"message\": \"peticion realizada con exito\",\n    \"data\": {\n      \"id\": 1,\n      \"fecha\": \"2025-01-09\",\n      \"categoria\": \"Productos\",\n      \"monto\": \"1500.50\",\n      \"descripcion\": \"Venta de productos electrónicos\",\n      \"usuarioId\": 1,\n      \"createdAt\": \"2026-01-10T11:58:41.156Z\",\n      \"updatedAt\": \"2026-01-10T11:58:41.156Z\",\n      \"deletedAt\": null\n    }\n  }\n\n  Errores Posibles\n\n  404 Not Found - Venta no existe o fue eliminada\n\n  {\n    \"success\": false,\n    \"status\": 404,\n    \"error\": \"NotFoundError\",\n    \"message\": \"Venta con id 19 no fue encontrada\"\n  }\n\n  401 Unauthorized - Token no proporcionado\n\n  {\n    \"success\": false,\n    \"status\": 401,\n    \"error\": \"UnauthorizedError\",\n    \"message\": \"Token no proporcionado\"\n  }\n\n  401 Unauthorized - Token inválido o expirado\n\n  {\n    \"success\": false,\n    \"status\": 401,\n    \"error\": \"UnauthorizedError\",\n    \"message\": \"Token inválido\"\n  }"
+					},
+					"response": []
+				},
+				{
+					"name": "Editar Ventas",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "Le dice al servidor que el body es JSON. \nExpress necesita esto para parsear req.body\n",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"monto\": 2000.75,\r\n    \"descripcion\": \"Venta ACTUALIZADA - monto modificado\"\r\n  }"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/ventas/1",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"ventas",
+								"1"
+							]
+						},
+						"description": "● ### PATCH /api/ventas/:id\n\n**Actualizar venta**\n\nActualiza parcialmente una venta existente. Todos los campos son opcionales.\n\n#### Headers Requeridos\n\nAuthorization: Bearer\n\n#### Path Parameters\n\n- Request Body (todos opcionales){\"fecha\": \"2025-01-09\",\"categoria\": \"Productos\",\"monto\": 2000.75,\"descripcion\": \"Venta ACTUALIZADA - monto modificado\"}⚠️ Nota: Solo se actualizan los campos enviados en el body. Los campos omitidosmantienen su valor actual.Validaciones\n    \n- fecha: formato YYYY-MM-DD (si se envía)\n    \n- categoria: string entre 2-100 caracteres (si se envía)\n    \n- monto: número positivo (si se envía)\n    \n- descripcion: string o null (si se envía)\n    \n    Respuesta Exitosa (200 OK)\n    \n    {  \n    \"success\": true,  \n    \"message\": \"Venta actualizada\",  \n    \"data\": {  \n    \"id\": 1,  \n    \"fecha\": \"2025-01-09\",  \n    \"categoria\": \"Productos\",  \n    \"monto\": \"2000.75\",  \n    \"descripcion\": \"Venta ACTUALIZADA - monto modificado\",  \n    \"usuarioId\": 1,  \n    \"createdAt\": \"2026-01-10T11:58:41.156Z\",  \n    \"updatedAt\": \"2026-01-10T13:00:22.822Z\",  \n    \"deletedAt\": null  \n    }  \n    }\n    \n    ✅ El campo updatedAt se actualiza automáticamente\n    \n    Errores Posibles\n    \n    400 Bad Request - Validación fallida\n    \n    {  \n    \"success\": false,  \n    \"status\": 400,  \n    \"error\": \"BadRequestError\",  \n    \"message\": \"Errores de validacion\",  \n    \"details\": {  \n    \"monto\": \"Monto debe ser positivo\"  \n    }  \n    }\n    \n    404 Not Found - Venta no existe\n    \n    {  \n    \"success\": false,  \n    \"status\": 404,  \n    \"error\": \"NotFoundError\",  \n    \"message\": \"Venta con id 19 no fue encontrada\"  \n    }\n    \n    401 Unauthorized - Token no proporcionado o inválido\n    \n    {  \n    \"success\": false,  \n    \"status\": 401,  \n    \"error\": \"UnauthorizedError\",  \n    \"message\": \"Token no proporcionado\"  \n    }"
+					},
+					"response": []
+				},
+				{
+					"name": "Borrar \"Soft\" venta",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "Le dice al servidor que el body es JSON. \nExpress necesita esto para parsear req.body\n",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/ventas/2",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"ventas",
+								"2"
+							]
+						},
+						"description": "● ### DELETE /api/ventas/:id\n\n  **Eliminar venta (soft delete)**\n\n  Elimina lógicamente una venta. El registro no se borra físicamente de la base de\n  datos, sino que se marca con `deletedAt` (timestamp actual).\n\n  #### Headers Requeridos\n\n  Authorization: Bearer\n\n  #### Path Parameters\n\n  - **id**: número entero (ID de la venta)\n\n  #### Comportamiento\n\n  - ✅ Marca el registro con `deletedAt` (timestamp actual)\n  - ✅ El registro **NO aparece** en `GET /ventas` ni `GET /ventas/:id`\n  - ✅ El registro permanece en la base de datos (puede recuperarse si se implementa\n  restore)\n\n  #### Respuesta Exitosa (204 No Content)\n\n  Sin body. La ausencia de error indica éxito.\n\n  ⚠️ **Nota:** HTTP 204 No Content no devuelve body en la respuesta.\n\n  #### Errores Posibles\n\n  **404 Not Found** - Venta no existe o ya fue eliminada\n\n  ```json\n  {\n    \"success\": false,\n    \"status\": 404,\n    \"error\": \"NotFoundError\",\n    \"message\": \"Venta con id 19 no fue encontrada\"\n  }\n\n  401 Unauthorized - Token no proporcionado o inválido\n\n  {\n    \"success\": false,\n    \"status\": 401,\n    \"error\": \"UnauthorizedError\",\n    \"message\": \"Token no proporcionado\"\n  }"
+					},
+					"response": []
+				}
+			],
+			"description": "Gestión de ventas con filtros por período y soft delet"
+		},
+		{
+			"name": "Gastos",
+			"item": [
+				{
+					"name": "Crear Gasto",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "Le dice al servidor que el body es JSON. \nExpress necesita esto para parsear req.body\n",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "  {\r\n    \"fecha\": \"2026-01-13\",\r\n    \"categoria\": \"Productos\",\r\n    \"monto\": 1500.50,\r\n    \"descripcion\": \"Gasto 4 de PRUEBA productos electrónicos\"\r\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/gastos",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"gastos"
+							]
+						},
+						"description": "● ### POST /api/gastos\n\n**Crear gasto**\n\nRegistra un nuevo gasto en el sistema. El `usuarioId` se asigna automáticamente desde  \nel token JWT del usuario autenticado.\n\n#### Headers Requeridos\n\nAuthorization: Bearer\n\n⚠️ **Importante:** El token debe obtenerse previamente mediante login en el  \nmicroservicio de autenticación.\n\n#### Request Body\n\n``` json\n  {\n    \"fecha\": \"2026-01-09\",\n    \"categoria\": \"Operativos\",\n    \"monto\": 1500.50,\n    \"descripcion\": \"Gasto en materiales\"\n  }\n  Validaciones\n  - fecha: formato YYYY-MM-DD, requerido\n  - categoria: string entre 2-100 caracteres, requerido\n  - monto: número positivo, requerido\n  - descripcion: string, opcional (puede ser null)\n  Respuesta Exitosa (201 Created)\n  {\n    \"success\": true,\n    \"message\": \"Gasto creado con exito\",\n    \"data\": {\n      \"id\": 1,\n      \"fecha\": \"2026-01-09\",\n      \"categoria\": \"Operativos\",\n      \"monto\": \"1500.50\",\n      \"descripcion\": \"Gasto en materiales\",\n      \"usuarioId\": 1,\n      \"createdAt\": \"2026-01-10T18:42:34.464Z\",\n      \"updatedAt\": \"2026-01-10T18:42:34.464Z\",\n      \"deletedAt\": null\n    }\n  }\n  ✅ El campo usuarioId se asigna automáticamente desde el token JWT\n  ✅ El campo deletedAt es null (soft delete no aplicado)\n  Errores Posibles\n  400 Bad Request - Validación fallida\n  {\n    \"success\": false,\n    \"status\": 400,\n    \"error\": \"BadRequestError\",\n    \"message\": \"Errores de validacion\",\n    \"details\": {\n      \"fecha\": \"Fecha debe ser formato YYYY-MM-DD\"\n    }\n  }\n  401 Unauthorized - Token no proporcionado\n  {\n    \"success\": false,\n    \"status\": 401,\n    \"error\": \"UnauthorizedError\",\n    \"message\": \"Token no proporcionado\"\n  }\n  401 Unauthorized - Token inválido o expirado\n  {\n    \"success\": false,\n    \"status\": 401,\n    \"error\": \"UnauthorizedError\",\n    \"message\": \"Token inválido\"\n  }\n\n ```"
+					},
+					"response": []
+				},
+				{
+					"name": "Traer todos los gastos",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "Le dice al servidor que el body es JSON. \nExpress necesita esto para parsear req.body\n",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/gastos",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"gastos"
+							]
+						},
+						"description": "● ### GET /api/gastos\n\n**Listar gastos**\n\nLista todos los gastos del sistema (excluye registros con soft delete). Soporta  \nfiltros por periodo o rango de fechas.\n\n#### Headers Requeridos\n\nAuthorization: Bearer\n\n#### Query Parameters (Opcionales)\n\n**Filtros por periodo relativo:**\n\n- `?periodo=hoy` → Gastos de hoy\n    \n- `?periodo=semana` → Gastos de esta semana (domingo-sábado)\n    \n- `?periodo=mes` → Gastos de este mes\n    \n- `?periodo=anual` → Gastos de este año\n    \n\n**Filtro por rango personalizado:**\n\n- `?fecha_desde=YYYY-MM-DD&fecha_hasta=YYYY-MM-DD` → Rango específico\n    \n\n**Sin filtros:** Retorna todos los gastos\n\n⚠️ **Nota:** Los filtros `periodo` y `fecha_desde/fecha_hasta` son excluyentes. Si se  \nenvían ambos, se prioriza el rango personalizado.\n\n#### Respuesta Exitosa (200 OK)\n\n\\`\\`\\`json  \n{  \n\"success\": true,  \n\"message\": \"peticion realizada con exito\",  \n\"data\": \\[  \n{  \n\"id\": 1,  \n\"fecha\": \"2026-01-09\",  \n\"categoria\": \"Operativos\",  \n\"monto\": \"1500.50\",  \n\"descripcion\": \"Gasto en materiales\",  \n\"usuarioId\": 1,  \n\"createdAt\": \"2026-01-10T18:42:34.464Z\",  \n\"updatedAt\": \"2026-01-10T18:42:34.464Z\",  \n\"deletedAt\": null  \n}  \n\\]  \n}\n\n✅ Los registros con deletedAt no null son excluidos automáticamente (soft delete)\n\nEjemplos de Uso\n\n# Todos los gastos\n\nGET /api/gastos\n\n# Gastos de hoy\n\nGET /api/gastos?periodo=hoy\n\n# Gastos del mes actual\n\nGET /api/gastos?periodo=mes\n\n# Gastos en rango específico\n\nGET /api/gastos?fecha_desde=2026-01-01&fecha_hasta=2026-01-31\n\nErrores Posibles\n\n401 Unauthorized - Token no proporcionado\n\n{  \n\"success\": false,  \n\"status\": 401,  \n\"error\": \"UnauthorizedError\",  \n\"message\": \"Token no proporcionado\"  \n}\n\n401 Unauthorized - Token inválido o expirado\n\n{  \n\"success\": false,  \n\"status\": 401,  \n\"error\": \"UnauthorizedError\",  \n\"message\": \"Token inválido\"  \n}"
+					},
+					"response": []
+				},
+				{
+					"name": "Traer gastos por RANGO de Fecha",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "Le dice al servidor que el body es JSON. \nExpress necesita esto para parsear req.body\n",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/gastos?fecha_desde=2026-01-09&fecha_hasta=2026-01-31",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"gastos"
+							],
+							"query": [
+								{
+									"key": "fecha_desde",
+									"value": "2026-01-09"
+								},
+								{
+									"key": "fecha_hasta",
+									"value": "2026-01-31"
+								}
+							]
+						},
+						"description": "Documentado en Traer todos los gastos"
+					},
+					"response": []
+				},
+				{
+					"name": "Traer gastos de HOY.",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "Le dice al servidor que el body es JSON. \nExpress necesita esto para parsear req.body\n",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/gastos?periodo=hoy",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"gastos"
+							],
+							"query": [
+								{
+									"key": "periodo",
+									"value": "hoy"
+								}
+							]
+						},
+						"description": "Documentado en Traer todos los gastos"
+					},
+					"response": []
+				},
+				{
+					"name": "Traer gastos de ESTA SEMANA",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "Le dice al servidor que el body es JSON. \nExpress necesita esto para parsear req.body\n",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/gastos?periodo=semana",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"gastos"
+							],
+							"query": [
+								{
+									"key": "periodo",
+									"value": "semana"
+								}
+							]
+						},
+						"description": "Documentado en Traer todos los gastos"
+					},
+					"response": []
+				},
+				{
+					"name": "Traer Gastoss de ESTE MES",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "Le dice al servidor que el body es JSON. \nExpress necesita esto para parsear req.body\n",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/gastos?periodo=mes",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"gastos"
+							],
+							"query": [
+								{
+									"key": "periodo",
+									"value": "mes"
+								}
+							]
+						},
+						"description": "Documentado en Traer Todos los gastos"
+					},
+					"response": []
+				},
+				{
+					"name": "Traer gastos ANUAL",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "Le dice al servidor que el body es JSON. \nExpress necesita esto para parsear req.body\n",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/gastos?periodo=anual",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"gastos"
+							],
+							"query": [
+								{
+									"key": "periodo",
+									"value": "anual"
+								}
+							]
+						},
+						"description": "Documentado en Traer todos los Gastos"
+					},
+					"response": []
+				},
+				{
+					"name": "Traer Gasto por id",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "Le dice al servidor que el body es JSON. \nExpress necesita esto para parsear req.body\n",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/gastos/2",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"gastos",
+								"2"
+							]
+						},
+						"description": "● ### GET /api/gastos/:id\n\n  **Obtener gasto por ID**\n\n  Obtiene un gasto específico por su ID.\n\n  #### Headers Requeridos\n\n  Authorization: Bearer\n\n  #### Path Parameters\n\n  - **id**: número entero (ID del gasto)\n\n  #### Respuesta Exitosa (200 OK)\n\n  ```json\n  {\n    \"success\": true,\n    \"message\": \"peticion realizada con exito\",\n    \"data\": {\n      \"id\": 1,\n      \"fecha\": \"2026-01-09\",\n      \"categoria\": \"Operativos\",\n      \"monto\": \"1500.50\",\n      \"descripcion\": \"Gasto en materiales\",\n      \"usuarioId\": 1,\n      \"createdAt\": \"2026-01-10T18:42:34.464Z\",\n      \"updatedAt\": \"2026-01-10T18:42:34.464Z\",\n      \"deletedAt\": null\n    }\n  }\n\n  Errores Posibles\n\n  404 Not Found - Gasto no existe o fue eliminado\n\n  {\n    \"success\": false,\n    \"status\": 404,\n    \"error\": \"NotFoundError\",\n    \"message\": \"Gasto con id 19 no fue encontrada\"\n  }\n\n  401 Unauthorized - Token no proporcionado\n\n  {\n    \"success\": false,\n    \"status\": 401,\n    \"error\": \"UnauthorizedError\",\n    \"message\": \"Token no proporcionado\"\n  }\n\n  401 Unauthorized - Token inválido o expirado\n\n  {\n    \"success\": false,\n    \"status\": 401,\n    \"error\": \"UnauthorizedError\",\n    \"message\": \"Token inválido\"\n  }"
+					},
+					"response": []
+				},
+				{
+					"name": "Editar Gastos",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "Le dice al servidor que el body es JSON. \nExpress necesita esto para parsear req.body\n",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"monto\": 2000.80,\r\n    \"descripcion\": \"Gasto ACTUALIZADo - monto modificado\"\r\n  }"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/gastos/2",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"gastos",
+								"2"
+							]
+						},
+						"description": "● ### PATCH /api/gastos/:id\n\n  **Actualizar gasto**\n\n  Actualiza parcialmente un gasto existente. Todos los campos son opcionales.\n\n  #### Headers Requeridos\n\n  Authorization: Bearer\n\n  #### Path Parameters\n\n  - **id**: número entero (ID del gasto)\n\n  #### Request Body (todos opcionales)\n\n  ```json\n  {\n    \"fecha\": \"2026-01-09\",\n    \"categoria\": \"Operativos\",\n    \"monto\": 2000.8,\n    \"descripcion\": \"Gasto ACTUALIZADO - monto modificado\"\n  }\n\n  ⚠️ Nota: Solo se actualizan los campos enviados en el body. Los campos omitidos\n  mantienen su valor actual.\n\n  Validaciones\n\n  - fecha: formato YYYY-MM-DD (si se envía)\n  - categoria: string entre 2-100 caracteres (si se envía)\n  - monto: número positivo (si se envía)\n  - descripcion: string o null (si se envía)\n\n  Respuesta Exitosa (200 OK)\n\n  {\n    \"success\": true,\n    \"message\": \"Gasto actualizado\",\n    \"data\": {\n      \"id\": 1,\n      \"fecha\": \"2026-01-09\",\n      \"categoria\": \"Operativos\",\n      \"monto\": \"2000.80\",\n      \"descripcion\": \"Gasto ACTUALIZADO - monto modificado\",\n      \"usuarioId\": 1,\n      \"createdAt\": \"2026-01-10T18:42:34.464Z\",\n      \"updatedAt\": \"2026-01-10T18:56:43.233Z\",\n      \"deletedAt\": null\n    }\n  }\n\n  ✅ El campo updatedAt se actualiza automáticamente\n\n  Errores Posibles\n\n  400 Bad Request - Validación fallida\n\n  {\n    \"success\": false,\n    \"status\": 400,\n    \"error\": \"BadRequestError\",\n    \"message\": \"Errores de validacion\",\n    \"details\": {\n      \"monto\": \"Monto debe ser positivo\"\n    }\n  }\n\n  404 Not Found - Gasto no existe\n\n  {\n    \"success\": false,\n    \"status\": 404,\n    \"error\": \"NotFoundError\",\n    \"message\": \"Gasto con id 19 no fue encontrada\"\n  }\n\n  401 Unauthorized - Token no proporcionado o inválido\n\n  {\n    \"success\": false,\n    \"status\": 401,\n    \"error\": \"UnauthorizedError\",\n    \"message\": \"Token no proporcionado\"\n  }"
+					},
+					"response": []
+				},
+				{
+					"name": "Borrar \"Soft\" Gasto",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "Le dice al servidor que el body es JSON. \nExpress necesita esto para parsear req.body\n",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/gastos/1",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"gastos",
+								"1"
+							]
+						},
+						"description": "● ### DELETE /api/gastos/:id\n\n  **Eliminar gasto (soft delete)**\n\n  Elimina lógicamente un gasto. El registro no se borra físicamente de la base de\n  datos, sino que se marca con `deletedAt` (timestamp actual).\n\n  #### Headers Requeridos\n\n  Authorization: Bearer\n\n  #### Path Parameters\n\n  - **id**: número entero (ID del gasto)\n\n  #### Comportamiento\n\n  - ✅ Marca el registro con `deletedAt` (timestamp actual)\n  - ✅ El registro **NO aparece** en `GET /gastos` ni `GET /gastos/:id`\n  - ✅ El registro permanece en la base de datos (puede recuperarse si se implementa\n  restore)\n\n  #### Respuesta Exitosa (204 No Content)\n\n  Sin body. La ausencia de error indica éxito.\n\n  ⚠️ **Nota:** HTTP 204 No Content no devuelve body en la respuesta.\n\n  #### Errores Posibles\n\n  **404 Not Found** - Gasto no existe o ya fue eliminado\n\n  ```json\n  {\n    \"success\": false,\n    \"status\": 404,\n    \"error\": \"NotFoundError\",\n    \"message\": \"Gasto con id 19 no fue encontrada\"\n  }\n\n  401 Unauthorized - Token no proporcionado o inválido\n\n  {\n    \"success\": false,\n    \"status\": 401,\n    \"error\": \"UnauthorizedError\",\n    \"message\": \"Token no proporcionado\"\n  }"
+					},
+					"response": []
+				}
+			],
+			"description": "Gestión de ventas con filtros por período y soft delet"
+		},
+		{
+			"name": "Dashboard",
+			"item": [
+				{
+					"name": "Trae Line Chart Data",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/dashboard/line-chart",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"dashboard",
+								"line-chart"
+							]
+						},
+						"description": "● ### GET /api/dashboard/line-chart\n\n  **Datos agregados para gráfico**\n\n  Obtiene datos agregados por mes para visualización en gráfico de líneas. Retorna\n  totales de ventas, gastos y balance mensual.\n\n  #### Headers Requeridos\n\n  Authorization: Bearer\n\n  #### Descripción de Datos\n\n  - **ventas_por_mes**: Suma total de ventas agrupadas por mes\n  - **gastos_por_mes**: Suma total de gastos agrupados por mes\n  - **balance_por_mes**: Balance mensual (ventas - gastos)\n\n  **Agrupación:** Por mes (usando `DATE_TRUNC`)\n\n  **Período:** Todos los registros en la base de datos\n\n  #### Respuesta Exitosa (200 OK)\n\n  ```json\n  {\n    \"success\": true,\n    \"message\": \"peticion realizada con exito\",\n    \"data\": {\n      \"ventas_por_mes\": [\n        {\n          \"mes\": \"2025-01-01\",\n          \"total\": \"3501.25\"\n        },\n        {\n          \"mes\": \"2026-01-01\",\n          \"total\": \"1500.50\"\n        }\n      ],\n      \"gastos_por_mes\": [\n        {\n          \"mes\": \"2026-01-01\",\n          \"total\": \"2000.80\"\n        }\n      ],\n      \"balance_por_mes\": [\n        {\n          \"mes\": \"2025-01-01\",\n          \"balance\": \"3501.25\"\n        },\n        {\n          \"mes\": \"2026-01-01\",\n          \"balance\": \"-500.30\"\n        }\n      ]\n    }\n  }\n\n  ✅ Balance positivo indica más ventas que gastos\n\n  ✅ Balance negativo indica más gastos que ventas\n\n  ⚠️ Nota: Si un mes no tiene ventas o gastos, no aparecerá en el array correspondiente\n\n  Errores Posibles\n\n  401 Unauthorized - Token no proporcionado\n\n  {\n    \"success\": false,\n    \"status\": 401,\n    \"error\": \"UnauthorizedError\",\n    \"message\": \"Token no proporcionado\"\n  }\n\n  401 Unauthorized - Token inválido o expirado\n\n  {\n    \"success\": false,\n    \"status\": 401,\n    \"error\": \"UnauthorizedError\",\n    \"message\": \"Token inválido\"\n  }"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Import MAsive Json",
+			"item": [
+				{
+					"name": "Import JSON (Carga Masiva)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": " {\r\n    \"ventas\": [\r\n      {\r\n        \"fecha\": \"2026-01-01\",\r\n        \"categoria\": \"Producto A\",\r\n        \"monto\": 1500.50,\r\n        \"descripcion\": \"Venta de enero\"\r\n      },\r\n      {\r\n        \"fecha\": \"2026-01-05\",\r\n        \"categoria\": \"Servicio B\",\r\n        \"monto\": 2300.00,\r\n        \"descripcion\": \"Consultoría\"\r\n      }\r\n    ],\r\n    \"gastos\": [\r\n      {\r\n        \"fecha\": \"2026-01-02\",\r\n        \"categoria\": \"Operativo\",\r\n        \"monto\": 500.00,\r\n        \"descripcion\": \"Gastos de oficina\"\r\n      },\r\n      {\r\n        \"fecha\": \"2026-01-03\",\r\n        \"categoria\": \"Marketing\",\r\n        \"monto\": 800.75,\r\n        \"descripcion\": \"Publicidad en redes\"\r\n      }\r\n    ]\r\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/import-json",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"import-json"
+							]
+						},
+						"description": "● ### POST /api/import-json\n\n  **Importación masiva**\n\n  Permite la carga masiva de ventas y gastos desde un archivo JSON. El `usuarioId` se\n  asigna automáticamente a todos los registros desde el token JWT del usuario\n  autenticado.\n\n  #### Headers Requeridos\n\n  Authorization: Bearer\n\n  #### Request Body\n\n  ```json\n  {\n    \"ventas\": [\n      {\n        \"fecha\": \"2026-01-10\",\n        \"categoria\": \"Productos\",\n        \"monto\": 1500.50,\n        \"descripcion\": \"Venta importada 1\"\n      },\n      {\n        \"fecha\": \"2026-01-11\",\n        \"categoria\": \"Servicios\",\n        \"monto\": 2000.00,\n        \"descripcion\": \"Venta importada 2\"\n      }\n    ],\n    \"gastos\": [\n      {\n        \"fecha\": \"2026-01-10\",\n        \"categoria\": \"Operativos\",\n        \"monto\": 500.00,\n        \"descripcion\": \"Gasto importado 1\"\n      }\n    ]\n  }\n\n  ⚠️ Nota: Ambos arrays (ventas y gastos) son opcionales. Podés enviar solo ventas,\n  solo gastos, o ambos.\n\n  Validaciones\n\n  Los objetos dentro de cada array deben cumplir las mismas validaciones que sus\n  endpoints individuales:\n\n  Para ventas:\n  - fecha: formato YYYY-MM-DD, requerido\n  - categoria: string entre 2-100 caracteres, requerido\n  - monto: número positivo, requerido\n  - descripcion: string, opcional\n\n  Para gastos:\n  - fecha: formato YYYY-MM-DD, requerido\n  - categoria: string entre 2-100 caracteres, requerido\n  - monto: número positivo, requerido\n  - descripcion: string, opcional\n\n  Respuesta Exitosa (201 Created)\n\n  {\n    \"success\": true,\n    \"message\": \"Importación masiva exitosa\",\n    \"data\": {\n      \"ventas_creadas\": 2,\n      \"gastos_creados\": 1,\n      \"total\": 3\n    }\n  }\n\n  ✅ Todos los registros se crean con el usuarioId del token JWT\n\n  ✅ Si un array está vacío o no se envía, su contador será 0\n\n  Ejemplos de Uso\n\n  Solo ventas:\n  {\n    \"ventas\": [\n      { \"fecha\": \"2026-01-10\", \"categoria\": \"Productos\", \"monto\": 1000 }\n    ]\n  }\n\n  Solo gastos:\n  {\n    \"gastos\": [\n      { \"fecha\": \"2026-01-10\", \"categoria\": \"Operativos\", \"monto\": 500 }\n    ]\n  }\n\n  Errores Posibles\n\n  400 Bad Request - Validación fallida en algún registro\n\n  {\n    \"success\": false,\n    \"status\": 400,\n    \"error\": \"BadRequestError\",\n    \"message\": \"Errores de validacion\",\n    \"details\": {\n      \"ventas[0].fecha\": \"Fecha debe ser formato YYYY-MM-DD\"\n    }\n  }\n\n  401 Unauthorized - Token no proporcionado\n\n  {\n    \"success\": false,\n    \"status\": 401,\n    \"error\": \"UnauthorizedError\",\n    \"message\": \"Token no proporcionado\"\n  }\n\n  401 Unauthorized - Token inválido o expirado\n\n  {\n    \"success\": false,\n    \"status\": 401,\n    \"error\": \"UnauthorizedError\",\n    \"message\": \"Token inválido\"\n  }"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}

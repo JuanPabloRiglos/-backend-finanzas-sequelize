@@ -4,6 +4,7 @@ export interface GastoAttributesType {
   categoria: string;
   monto: number;
   descripcion: string | null;
+  usuarioId: number;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date | null;
@@ -11,7 +12,7 @@ export interface GastoAttributesType {
 
 export type CreateGastoInputType = Omit<
   GastoAttributesType,
-  'id' | 'createdAt' | 'updatedAt' | 'deletedAt'
+  'id' | 'createdAt' | 'updatedAt' | 'deletedAt' | 'usuarioId'
 >;
 
 export type UpdateGastoInputType = Partial<GastoAttributesType>; //todos sus campos son opcionales con el partial

@@ -27,6 +27,7 @@ export class Venta extends Model<
   declare categoria: string;
   declare monto: number;
   declare descripcion: string | null;
+  declare usuarioId: number;
   // Timestamps (solo los maneja Sequelize)
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
@@ -55,6 +56,14 @@ Venta.init(
     descripcion: {
       type: DataTypes.TEXT,
       allowNull: true,
+    },
+    usuarioId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'usuarios',
+        key: 'id',
+      },
     },
   },
   {

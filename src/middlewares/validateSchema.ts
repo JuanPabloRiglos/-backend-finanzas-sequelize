@@ -10,7 +10,6 @@ export const validateSchema = (schema: z.ZodTypeAny) => {
     try {
       schema.parse(req.body);
       //shcema.parse compara el schema contra el body.
-      //si es correcto, no tira ZodError, ejecuta el next.
       next();
     } catch (error) {
       if (error instanceof ZodError) {

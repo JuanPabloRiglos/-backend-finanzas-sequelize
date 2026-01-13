@@ -75,11 +75,15 @@ export async function getAllRegisters(
 }
 
 // ===============================CREATE==============================
-export async function createRegister(typedDto: CreateVentaInputType) {
+export async function createRegister(
+  typedDto: CreateVentaInputType & { usuarioId: number }
+) {
   return await Venta.create(typedDto);
 }
 // ===============================CREATE MASIVE==============================
-export async function bulkCreateRegister(ventas: CreateVentaInputType[]) {
+export async function bulkCreateRegister(
+  ventas: (CreateVentaInputType & { usuarioId: number })[]
+) {
   if (ventas.length === 0) return [];
   return await Venta.bulkCreate(ventas);
 }

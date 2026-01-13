@@ -1,7 +1,7 @@
 import { fn, col, literal } from 'sequelize';
 
-import { Gasto } from '../models/gasto.model';
-import { Venta } from '../models/venta.model';
+import { Gasto } from '../models/gasto.model.js';
+import { Venta } from '../models/venta.model.js';
 
 // Tipo para el resultado de agregación por mes
 type AgregadoPorMes = {

@@ -1,15 +1,15 @@
-import { CreateVentaDto, UpdateVentaDto } from '../dtos/venta.dto';
+import { CreateVentaDto, UpdateVentaDto } from '../dtos/venta.dto.js';
 import {
   CreateVentaInputType,
   UpdateVentaInputType,
-} from '../types/venta.types';
+} from '../types/venta.types.js';
 
-import { CreateGastoDto, UpdateGastoDto } from '../dtos/gasto.dto';
+import { CreateGastoDto, UpdateGastoDto } from '../dtos/gasto.dto.js';
 
 import {
   CreateGastoInputType,
   UpdateGastoInputType,
-} from '../types/gasto.types';
+} from '../types/gasto.types.js';
 
 export function ventaDtoToCreateInput(
   dto: CreateVentaDto

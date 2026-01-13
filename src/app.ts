@@ -1,7 +1,7 @@
 import express, { Application } from 'express';
 //importaciones internas
-import { errorHandler } from './middlewares/errorHandler';
-import routes from './routes';
+import { errorHandler } from './middlewares/errorHandler.js';
+import routes from './routes/index.js';
 
 export const app: Application = express();
 

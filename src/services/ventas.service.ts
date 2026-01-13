@@ -14,12 +14,12 @@ import {
 import { Op } from 'sequelize';
 
 //importaciones propias
-import { Venta } from '../models/venta.model';
+import { Venta } from '../models/venta.model.js';
 
 import {
   CreateVentaInputType,
   UpdateVentaInputType,
-} from '../types/venta.types';
+} from '../types/venta.types.js';
 
 //Funciones que conectan el controller con el modelo -> Db
 

@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import ventasRouter from './ventas.routes';
-import gastoRouter from './gastos.routes';
-import dashboardRouter from './dashboard.routes';
-import importMasiveRouter from './import.masive.routes';
+import ventasRouter from './ventas.routes.js';
+import gastoRouter from './gastos.routes.js';
+import dashboardRouter from './dashboard.routes.js';
+import importMasiveRouter from './import.masive.routes.js';
 const router = Router();
 
 router.use('/ventas', ventasRouter);

@@ -1,10 +1,10 @@
 import { Router } from 'express';
 //importaciones para validacion de entrada
-import { validateSchema } from '../middlewares/validateSchema';
-import { autenticate } from '../middlewares/authenticate';
-import { createVentaSchema, updateVentaSchema } from '../dtos/venta.dto';
+import { validateSchema } from '../middlewares/validateSchema.js';
+import { autenticate } from '../middlewares/authenticate.js';
+import { createVentaSchema, updateVentaSchema } from '../dtos/venta.dto.js';
 //importaciones funciones de controllers
-import * as ventasController from '../controllers/ventas.controller';
+import * as ventasController from '../controllers/ventas.controller.js';
 
 //inciamos el router
 const router = Router();

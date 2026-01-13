@@ -5,23 +5,23 @@ import {
   respondCreated,
   respondNoContent,
   respondOk,
-} from '../utils/apiResponseHelpers';
+} from '../utils/apiResponseHelpers.js';
 
 //funciones del Servicio
-import * as Service from '../services/gastos.service';
+import * as Service from '../services/gastos.service.js';
 
 //Typado. Necesitamos trbajar el tipo de dato entre capas
 import {
   CreateGastoInputType,
   UpdateGastoInputType,
-} from '../types/gasto.types';
-import { CreateGastoDto, UpdateGastoDto } from '../dtos/gasto.dto';
+} from '../types/gasto.types.js';
+import { CreateGastoDto, UpdateGastoDto } from '../dtos/gasto.dto.js';
 //funciones de transformacion de tipo.
 import {
   gastoDtoToCreateInput,
   gastoDtoToUpdateInput,
-} from '../utils/dtoMappers';
-import { AuthenticatedRequest } from '../types/custom-request';
+} from '../utils/dtoMappers.js';
+import { AuthenticatedRequest } from '../types/custom-request.js';
 
 //--------------------------CREATE--------------------------------------------------------------
 export async function create(req: Request, res: Response, next: NextFunction) {

@@ -1,18 +1,18 @@
-import { bulkCreateRegister as bulkCreateVentas } from '../services/ventas.service';
-import { bulkCreateRegister as bulkCreateGastos } from '../services/gastos.service';
+import { bulkCreateRegister as bulkCreateVentas } from '../services/ventas.service.js';
+import { bulkCreateRegister as bulkCreateGastos } from '../services/gastos.service.js';
 
 import { Response, Request, NextFunction } from 'express';
-import { respondCreated } from '../utils/apiResponseHelpers';
+import { respondCreated } from '../utils/apiResponseHelpers.js';
 
 import {
   gastoDtoToCreateInput,
   ventaDtoToCreateInput,
-} from '../utils/dtoMappers';
+} from '../utils/dtoMappers.js';
 
-import { CreateVentaInputType } from '../types/venta.types';
-import { CreateGastoInputType } from '../types/gasto.types';
-import { ImportJsonDto } from '../dtos/import.masive.dto';
-import { AuthenticatedRequest } from '../types/custom-request';
+import { CreateVentaInputType } from '../types/venta.types.js';
+import { CreateGastoInputType } from '../types/gasto.types.js';
+import { ImportJsonDto } from '../dtos/import.masive.dto.js';
+import { AuthenticatedRequest } from '../types/custom-request.js';
 
 export async function createMasive(
   req: Request,

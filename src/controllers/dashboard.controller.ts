@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 
-import * as Service from '../services/dashboard.service';
-import { respondOk } from '../utils/apiResponseHelpers';
+import * as Service from '../services/dashboard.service.js';
+import { respondOk } from '../utils/apiResponseHelpers.js';
 
 //--------------------------GET ALL--------------------------------------------------------------
 export async function getLineChartData(

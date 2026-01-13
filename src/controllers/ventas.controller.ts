@@ -5,24 +5,24 @@ import {
   respondCreated,
   respondNoContent,
   respondOk,
-} from '../utils/apiResponseHelpers';
+} from '../utils/apiResponseHelpers.js';
 
 //funciones del Servicio
-import * as Service from '../services/ventas.service';
+import * as Service from '../services/ventas.service.js';
 
 //Typado. Necesitamos trbajar el tipo de dato entre capas
 import {
   CreateVentaInputType,
   UpdateVentaInputType,
-} from '../types/venta.types';
-import { CreateVentaDto, UpdateVentaDto } from '../dtos/venta.dto';
+} from '../types/venta.types.js';
+import { CreateVentaDto, UpdateVentaDto } from '../dtos/venta.dto.js';
 
 //funciones de transformacion de tipo.
 import {
   ventaDtoToCreateInput,
   ventaDtoToUpdateInput,
-} from '../utils/dtoMappers';
-import { AuthenticatedRequest } from '../types/custom-request';
+} from '../utils/dtoMappers.js';
+import { AuthenticatedRequest } from '../types/custom-request.js';
 
 //--------------------------CREATE--------------------------------------------------------------
 export async function create(req: Request, res: Response, next: NextFunction) {

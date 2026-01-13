@@ -14,12 +14,12 @@ import {
 import { Op } from 'sequelize';
 
 //importaciones propias
-import { Gasto } from '../models/gasto.model';
+import { Gasto } from '../models/gasto.model.js';
 
 import {
   CreateGastoInputType,
   UpdateGastoInputType,
-} from '../types/gasto.types';
+} from '../types/gasto.types.js';
 
 //Funciones que conectan el controller con el modelo -> Db
 

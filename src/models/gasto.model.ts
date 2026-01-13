@@ -1,4 +1,4 @@
-import { sequelize } from '../config/database';
+import { sequelize } from '../config/database.js';
 
 //El tipado para el modelo se maneja con Squelize y su libreria
 //Evitando coliciones con typescrip en campos automaticos

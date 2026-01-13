@@ -1,6 +1,9 @@
 //Archivo para sequelize Cli sepa que hacer-> Por eso es common JS con module.exports
 const dotenv = require('dotenv');
-dotenv.config();
+// Solo cargar dotenv en desarrollo (en producción Render inyecta las variables)
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.config();
+}
 
 module.exports = {
   development: {

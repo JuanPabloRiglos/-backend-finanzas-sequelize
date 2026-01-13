@@ -1,7 +1,10 @@
 //Configuracion de la instancia, pool Singletone
 
 import dotenv from 'dotenv';
-dotenv.config();
+// Solo cargar dotenv en desarrollo (en producción Render inyecta las variables)
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.config();
+}
 
 import { Sequelize } from 'sequelize';
 
@@ -17,7 +20,7 @@ if (!DATABASE_URL)
 //implementacion
 export const sequelize = new Sequelize(DATABASE_URL, {
   dialect: 'postgres',
-  logging: console.log, // en produccion poner en false.
+  logging: process.env.NODE_ENV === 'production' ? false : console.log,
   pool: {
     max: 5,
     min: 0,
